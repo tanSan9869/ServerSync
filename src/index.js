@@ -5,6 +5,7 @@ import logRoutes from "./routes/logs.js";
 import serverRoutes from "./routes/server.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { startScheduler } from "./jobs/scheduler.js";
+import docsRoutes from "./routes/docs.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.get('/health',(req,res) =>{
 
 app.use('/api/servers',serverRoutes);
 app.use('/api/logs',logRoutes);
+app.use('/docs',docsRoutes);
 // Error handler (Phase 4)
 app.use((req,res)=>{
     res.status(404).json({success:false,error:"Route Not found"});
