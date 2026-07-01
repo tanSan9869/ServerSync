@@ -1,0 +1,7 @@
+// .git
+node_modules
+npm-debug.log
+// mysql/
+// *.sock
+// *.pid
+// .env
