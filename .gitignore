@@ -1,0 +1,9 @@
+node_modules/
+.env*
+nginx/ssl/
+mysql/
+*.sock
+*.pid
+npm-debug.log
+package*.json
+backups/

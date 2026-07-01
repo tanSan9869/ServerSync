@@ -1,0 +1,60 @@
+services:
+  app:
+    build: .
+    container_name: serversync_app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition : service_healthy
+    volumes:
+       - .:/app
+       - /app/node_modules
+    command: sh -c "npm install --omit=dev && node src/index.js"
+
+  mysql:
+    image: mysql:8.0
+    container_name: serversync_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: serversync_pass
+      MYSQL_DATABASE : serversync
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./src/config/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:alpine
+    container_name : serversync_nginx
+    ports:
+      - "8080:80"   # Maps local HTTP to 8080
+      - "8443:443"  # Maps local HTTPS to 8443 (Safe from Windows restrictions!)
+    volumes:    
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl          # add this
+      # - ./nginx/certbot-webroot:/var/www/certbot
+    depends_on:
+      - app
+    restart: always
+
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: serversync_certbot
+  #   volumes:
+  #     - ./nginx/ssl:/etc/letsencrypt
+  #     - ./nginx/certbot-webroot:/var/www/certbot
+  #   command: certonly --webroot --webroot-path=/var/www/certbot --email tanishksancheti1@gmail.com --agree-tos --no-eff-email -d serversync.1.2.3.4.nip.io
+
+volumes:
+  msql_data:
